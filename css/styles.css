@@ -1,0 +1,194 @@
+/* Estilos globais */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #000428, #004e92, #2a0845);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    color: white;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    overscroll-behavior: none;
+}
+
+/* Animações */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Container principal */
+.container {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 800px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Área do jogo */
+.game-area {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 20px auto;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(0, 26, 51, 0.8), rgba(0, 0, 0, 0.8)),
+                url('../img/Aviator-game.webp');
+    background-size: cover;
+    box-shadow: 0 0 30px rgba(0, 150, 255, 0.5),
+                inset 0 0 50px rgba(0, 150, 255, 0.2);
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(0, 150, 255, 0.3);
+    animation: glowPulse 3s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+/* Login */
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.login-container {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 0 30px rgba(0, 150, 255, 0.3);
+    border: 2px solid rgba(0, 150, 255, 0.2);
+    backdrop-filter: blur(10px);
+    animation: glowContainer 3s infinite ease-in-out;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .game-area {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .multiplier {
+        font-size: 3rem;
+    }
+    
+    button {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Tema escuro */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #000428, #004e92, #2a0845);
+    }
+    
+    .container {
+        background: rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* Toast Messages */
+.toast-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 9999;
+    animation: fadeInOut 3s forwards;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, 20px); }
+    10% { opacity: 1; transform: translate(-50%, 0); }
+    90% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
+/* Modo Offline */
+.offline-mode {
+    filter: grayscale(30%);
+}
+
+.offline-mode .game-area {
+    opacity: 0.8;
+}
+
+.offline-mode::after {
+    content: '📱 Modo Offline';
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    z-index: 9999;
+}
+
+/* Otimizações para Dados Móveis */
+@media (prefers-reduced-data: reduce) {
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    video {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .game-area {
+        background-size: contain;
+    }
+}
+
+/* Loading com baixo consumo */
+.low-data-loading {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+} 

@@ -1,0 +1,42 @@
+{
+  "name": "Min.AO Predictor Pro",
+  "short_name": "Min.AO Pro",
+  "description": "Análise avançada de RNG com previsões inteligentes",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#000428",
+  "theme_color": "#004e92",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "res/icon/android/icon-36-ldpi.png",
+      "sizes": "36x36",
+      "type": "image/png"
+    },
+    {
+      "src": "res/icon/android/icon-48-mdpi.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "res/icon/android/icon-72-hdpi.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "res/icon/android/icon-96-xhdpi.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "res/icon/android/icon-144-xxhdpi.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "res/icon/android/icon-192-xxxhdpi.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+} 

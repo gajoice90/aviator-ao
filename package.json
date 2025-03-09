@@ -1,0 +1,44 @@
+{
+  "name": "minao-predictor-pro",
+  "version": "1.0.0",
+  "description": "Análise avançada de RNG com previsões inteligentes",
+  "main": "index.js",
+  "scripts": {
+    "start": "cordova run android",
+    "build": "cordova build android",
+    "prepare": "cordova prepare"
+  },
+  "keywords": [
+    "predictor",
+    "aviator",
+    "rng",
+    "analysis"
+  ],
+  "author": "Min Go AO",
+  "license": "ISC",
+  "dependencies": {
+    "cordova-android": "^10.1.2",
+    "cordova-plugin-device": "^2.1.0",
+    "cordova-plugin-network-information": "^3.0.0",
+    "cordova-plugin-statusbar": "^3.0.0",
+    "cordova-plugin-vibration": "^3.1.1",
+    "cordova-plugin-insomnia": "^4.3.0",
+    "cordova-plugin-googleplus": "^8.5.2"
+  },
+  "cordova": {
+    "platforms": [
+      "android"
+    ],
+    "plugins": {
+      "cordova-plugin-device": {},
+      "cordova-plugin-network-information": {},
+      "cordova-plugin-statusbar": {},
+      "cordova-plugin-vibration": {},
+      "cordova-plugin-insomnia": {},
+      "cordova-plugin-googleplus": {
+        "REVERSED_CLIENT_ID": "com.googleusercontent.apps.YOUR_CLIENT_ID",
+        "WEB_APPLICATION_CLIENT_ID": "YOUR_CLIENT_ID.apps.googleusercontent.com"
+      }
+    }
+  }
+} 
