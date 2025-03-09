@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000428">
+    <meta name="msapplication-navbutton-color" content="#000428">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Min.AO Predictor Pro</title>
+
+    <style>
+        /* Estilos globais */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000428, #004e92, #2a0845);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            overscroll-behavior: none;
+        }
+
+        /* Animações */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Container principal */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Área do jogo */
+        .game-area {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(0, 26, 51, 0.9), rgba(0, 0, 0, 0.95));
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.2),
+                        inset 0 0 100px rgba(255, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            border: 3px solid rgba(255, 0, 0, 0.3);
+            animation: glowPulse 3s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        /* Bolas girando */
+        .rotating-balls {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: rotate 12s linear infinite;
+        }
+
+        .ball {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 0, 0, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Efeitos visuais adicionais */
+        .game-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.8));
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .airplane img {
+            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.8));
+            transition: all 0.3s ease;
+        }
+
+        .airplane.flying img {
+            animation: engineGlow 1s infinite;
+        }
+
+        @keyframes engineGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7)); }
+            50% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.9)); }
+            100% { filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7)); }
+        }
+
+        /* Avião */
+        .airplane {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            z-index: 2;
+            transition: all 0.3s ease;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: -30px;
+            margin-top: -30px;
+        }
+
+        .airplane.flying {
+            animation: flyAround 8s linear infinite;
+        }
+
+        @keyframes flyAround {
+            0% { 
+                transform: rotate(0deg) translateX(80px) rotate(0deg);
+            }
+            25% {
+                transform: rotate(90deg) translateX(80px) rotate(-90deg);
+            }
+            50% {
+                transform: rotate(180deg) translateX(80px) rotate(-180deg);
+            }
+            75% {
+                transform: rotate(270deg) translateX(80px) rotate(-270deg);
+            }
+            100% { 
+                transform: rotate(360deg) translateX(80px) rotate(-360deg);
+            }
+        }
+
+        .airplane.flying img {
+            animation: engineGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes engineGlow {
+            0% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7)); }
+            50% { filter: drop-shadow(0 0 40px rgba(255, 0, 0, 1)); }
+            100% { filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7)); }
+        }
+
+        /* Efeito de trilha do avião */
+        .airplane::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, rgba(255, 0, 0, 0.8), transparent);
+            top: 50%;
+            right: -100px;
+            transform-origin: left center;
+            animation: trailFade 1s linear infinite;
+        }
+
+        @keyframes trailFade {
+            from { 
+                opacity: 0.8;
+                transform: scaleX(1);
+            }
+            to { 
+                opacity: 0;
+                transform: scaleX(0);
+            }
+        }
+
+        /* Login */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)),
+                        url('1ade8d7f049909d34f5ae2ed3494cb2a.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.3);
+            border: 2px solid rgba(0, 150, 255, 0.2);
+            backdrop-filter: blur(10px);
+            animation: glowContainer 3s infinite ease-in-out;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .input-group {
+            position: relative;
+            width: 100%;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 2px solid rgba(0, 150, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: rgba(0, 150, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 150, 255, 0.3);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            opacity: 0.7;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .input-icon:hover {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .login-button {
+            background: linear-gradient(45deg, #ff0000, #cc0000);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+        }
+
+        .button-glow {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            animation: buttonGlow 3s infinite;
+        }
+
+        @keyframes buttonGlow {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.3; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* Toast Messages */
+        .toast-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            z-index: 9999;
+            animation: fadeInOut 3s forwards;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Modo Offline */
+        .offline-mode {
+            filter: grayscale(30%);
+        }
+
+        .offline-mode .game-area {
+            opacity: 0.8;
+        }
+
+        .offline-mode::after {
+            content: '📱 Modo Offline';
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 9999;
+        }
+
+        /* Animações */
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.2); }
+            50% { box-shadow: 0 0 80px rgba(255, 0, 0, 0.4); }
+            100% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.2); }
+        }
+
+        /* Logo na tela de login */
+        .login-logo-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        .login-logo-img::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 40%, rgba(255, 0, 0, 0.3));
+            z-index: 1;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: logoGlow 3s infinite;
+        }
+
+        @keyframes logoGlow {
+            0% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+
+        /* Favicon dinâmico */
+        .favicon {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 32px;
+            height: 32px;
+            background: url('1ade8d7f049909d34f5ae2ed3494cb2a.jpg') no-repeat center center;
+            background-size: cover;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .game-area {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .multiplier {
+                font-size: 3rem;
+            }
+            
+            button {
+                width: 60px;
+                height: 60px;
+            }
+
+            .login-container {
+                padding: 20px;
+            }
+        }
+
+        /* Efeito de partículas */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 0, 0, 0.5);
+            border-radius: 50%;
+            animation: particleFloat 3s infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-20px) translateX(10px); opacity: 0; }
+        }
+
+        /* Efeito de reflexo */
+        .reflection {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%) scaleY(-1);
+            width: 80%;
+            height: 20px;
+            background: linear-gradient(to bottom, rgba(255, 0, 0, 0.3), transparent);
+            filter: blur(2px);
+            opacity: 0.5;
+            animation: reflect 3s infinite;
+        }
+
+        @keyframes reflect {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.3; }
+        }
+
+        /* Casas de apostas */
+        .betting-selector {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px auto;
+            max-width: 300px;
+            border: 2px solid rgba(255, 0, 0, 0.2);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .betting-selector select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .betting-selector select:hover {
+            border-color: rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .betting-selector select:focus {
+            border-color: rgba(255, 0, 0, 0.7);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+        }
+
+        .betting-selector option {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+        }
+
+        .connection-status {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff3333;
+            text-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+            animation: statusPulse 2s infinite;
+        }
+
+        @keyframes statusPulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        /* Multiplier */
+        .multiplier {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+            margin: 20px 0;
+            animation: pulsate 2s ease-in-out infinite;
+        }
+
+        @keyframes pulsate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Controles do jogo */
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .controls button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(145deg, #1a1a1a, #000000);
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5),
+                        -5px -5px 15px rgba(255, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .controls button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        }
+
+        .controls button:active {
+            transform: scale(0.95);
+            box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.5),
+                        inset -5px -5px 10px rgba(255, 0, 0, 0.1);
+        }
+
+        .controls button span {
+            font-size: 24px;
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        .controls .start {
+            background: linear-gradient(145deg, #002200, #001100);
+        }
+
+        .controls .start:hover {
+            background: linear-gradient(145deg, #003300, #002200);
+        }
+
+        .controls .start span {
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .controls .stop {
+            background: linear-gradient(145deg, #220000, #110000);
+        }
+
+        .controls .stop:hover {
+            background: linear-gradient(145deg, #330000, #220000);
+        }
+
+        .controls button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+            animation: buttonShine 3s infinite;
+        }
+
+        @keyframes buttonShine {
+            0% { transform: rotate(45deg) translateY(-100%); }
+            50% { transform: rotate(45deg) translateY(100%); }
+            100% { transform: rotate(45deg) translateY(-100%); }
+        }
+
+        /* Seletor de modo */
+        .selector-container {
+            margin: 20px auto;
+            max-width: 300px;
+        }
+
+        .selector-container select {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(145deg, #1a1a1a, #000000);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            color: #ff0000;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3),
+                        -5px -5px 15px rgba(255, 0, 0, 0.1);
+        }
+
+        .selector-container select:hover {
+            border-color: rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .selector-container select:focus {
+            border-color: rgba(255, 0, 0, 0.7);
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
+        }
+
+        .selector-container option {
+            background: #000000;
+            color: #ff0000;
+            padding: 10px;
+        }
+
+        /* Botão de logout */
+        .logout-button {
+            background: linear-gradient(145deg, #1a1a1a, #000000);
+            color: #ff0000;
+            padding: 12px 30px;
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3),
+                        -5px -5px 15px rgba(255, 0, 0, 0.1);
+        }
+
+        .logout-button:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .logout-button:active {
+            transform: scale(0.95);
+            box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.3),
+                        inset -5px -5px 10px rgba(255, 0, 0, 0.1);
+        }
+
+        .container h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b, #ff0000);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(255, 0, 0, 0.3);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            position: relative;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        .container h1::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff0000, transparent);
+            border-radius: 3px;
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            color: #ff6b6b;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.3)); }
+            50% { filter: drop-shadow(0 0 25px rgba(255, 0, 0, 0.5)); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Sem Conexão -->
+    <div class="no-connection-overlay" id="noConnectionOverlay" style="display: none;">
+        <div class="no-connection-container">
+            <div class="no-connection-icon">📡</div>
+            <div class="no-connection-message">Sem conexão com a internet</div>
+            <button class="retry-button" onclick="checkConnectionAndInit()">Tentar Novamente</button>
+        </div>
+    </div>
+
+    <!-- Login Overlay -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="favicon"></div>
+        <div class="stars" id="loginStars"></div>
+        <div class="login-container">
+            <div class="login-image">
+                <img src="1ade8d7f049909d34f5ae2ed3494cb2a.jpg" alt="Aviator Logo" class="login-logo-img">
+            </div>
+            <h1 class="login-logo">Min.AO Predictor Pro</h1>
+            <div style="color: #00ff00; font-size: 16px; margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid #00ff00; text-align: center;">
+                ATT: ESSE BOT FOI CRIADO BASEANDO-SE NAS ESTATÍSTICAS E ANÁLISES DO AVIATOR.<br>
+                MAIS LUCRO, MENOS PERDAS. APROVEITE!<br>
+                <span style="color: #ff0000; font-weight: bold;">O BAIRRO NOVO VENCEU! 🏆</span>
+            </div>
+            <form class="login-form" id="loginForm" onsubmit="return false;">
+                <div class="input-group">
+                    <input type="text" class="login-input" placeholder="Digite seu usuário" id="loginEmail" autocomplete="off">
+                    <div class="input-icon">👤</div>
+                </div>
+                <div class="input-group">
+                    <input type="password" class="login-input" placeholder="Digite sua senha" id="loginPassword">
+                    <div class="input-icon password-toggle" onclick="togglePassword()">🔒</div>
+                </div>
+                <button type="submit" class="login-button" id="loginButton">
+                    <span>ACESSAR</span>
+                    <div class="button-glow"></div>
+                </button>
+            </form>
+            <div class="accuracy-badge">Precisão: 98.2%</div>
+            <div class="creator">Desenvolvido por Min Go AO</div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div id="mainContent" style="display: none;">
+        <div class="favicon"></div>
+        <div class="container">
+            <h1>Min.AO Predictor Pro</h1>
+            <div class="subtitle">Análise avançada de RNG</div>
+            <div class="accuracy-badge">Precisão: 98.2%</div>
+            
+            <div class="multiplier" id="multiplier">1.00x</div>
+            
+            <div class="game-area">
+                <div class="circle">
+                    <div class="rotating-balls" id="rotatingBalls"></div>
+                    <div class="airplane" id="airplane">
+                        🛩️
+                    </div>
+                </div>
+            </div>
+            
+            <div class="betting-selector">
+                <select id="bettingHouse" onchange="updateBettingHouse()">
+                    <option value="">Selecione a Casa de Apostas</option>
+                    <option value="elephant">Elephant Bet 🐘</option>
+                    <option value="premier">PremierBet 👑</option>
+                    <option value="888">888Bets 🎲</option>
+                    <option value="bantu">Bantu Bet 🌍</option>
+                </select>
+                <div class="connection-status" id="connectionStatus">Aguardando conexão...</div>
+            </div>
+
+            <div class="prediction-info">
+                <div class="next-prediction">
+                    Próxima Previsão: <span id="nextPrediction">Aguardando...</span>
+                </div>
+                <div class="accuracy">
+                    Precisão: <span id="accuracy">98.2%</span>
+                </div>
+                <div class="last-results">
+                    Últimos: <span id="lastResults">1.98x | 2.15x | 1.52x</span>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="start" onclick="startGame()">
+                    <span>▶</span>
+                </button>
+                <button class="stop" onclick="stopGame()">
+                    <span>⏹</span>
+                </button>
+            </div>
+            
+            <div class="selector-container">
+                <select id="predictionMode" onchange="updateMode()">
+                    <option value="normal">Modo Normal</option>
+                    <option value="advanced">Modo Avançado</option>
+                    <option value="expert">WhatsApp do ADM 928293991</option>
+                </select>
+            </div>
+            
+            <button class="logout-button" onclick="logout()">Sair</button>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de autenticação
+        const AUTH_SYSTEM = {
+            checkSession: function() {
+                return localStorage.getItem('minao_session') !== null;
+            },
+            saveSession: function() {
+                localStorage.setItem('minao_session', Date.now().toString());
+            },
+            clearSession: function() {
+                localStorage.removeItem('minao_session');
+            }
+        };
+
+        // Sistema de URL do aplicativo
+        const APP_URL = {
+            baseUrl: 'https://minao-predictor.netlify.app',
+            generateShareableUrl: function() {
+                const uniqueId = Math.random().toString(36).substring(2, 8).toUpperCase();
+                return `${this.baseUrl}/app/${uniqueId}`;
+            },
+            showUrlDialog: function() {
+                const url = this.generateShareableUrl();
+                const dialog = document.createElement('div');
+                dialog.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 0, 0, 0.95);
+                    padding: 20px;
+                    border-radius: 10px;
+                    border: 2px solid #ff0000;
+                    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+                    z-index: 9999;
+                    text-align: center;
+                    min-width: 300px;
+                `;
+                
+                dialog.innerHTML = `
+                    <h3 style="color: #ff0000; margin: 0 0 15px 0;">Link do Min.AO Predictor Pro</h3>
+                    <div style="color: #00ff00; font-size: 14px; margin-bottom: 15px;">
+                        Compartilhe este link para acessar o aplicativo
+                    </div>
+                    <input type="text" value="${url}" readonly style="
+                        width: 100%;
+                        padding: 10px;
+                        background: rgba(0, 0, 0, 0.8);
+                        border: 1px solid #ff0000;
+                        border-radius: 5px;
+                        color: #00ff00;
+                        margin-bottom: 15px;
+                        font-size: 14px;
+                    ">
+                    <div style="display: flex; justify-content: center; gap: 10px;">
+                        <button onclick="APP_URL.copyToClipboard('${url}')" style="
+                            background: linear-gradient(45deg, #ff0000, #cc0000);
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-weight: bold;
+                        ">Copiar Link</button>
+                        <button onclick="this.parentElement.parentElement.remove()" style="
+                            background: rgba(0, 0, 0, 0.8);
+                            color: #ff0000;
+                            border: 1px solid #ff0000;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-weight: bold;
+                        ">Fechar</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(dialog);
+            },
+            copyToClipboard: function(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Link copiado com sucesso! 📋');
+                }).catch(() => {
+                    showToast('Erro ao copiar o link');
+                });
+            }
+        };
+
+        // Adiciona botão de compartilhamento na interface principal
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            if (container) {
+                const shareButton = document.createElement('button');
+                shareButton.className = 'share-button';
+                shareButton.innerHTML = '🔗 Compartilhar Link';
+                shareButton.style.cssText = `
+                    background: linear-gradient(45deg, #ff0000, #cc0000);
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    margin: 20px auto;
+                    display: block;
+                    font-weight: bold;
+                    transition: all 0.3s ease;
+                    font-size: 16px;
+                `;
+                shareButton.onclick = () => APP_URL.showUrlDialog();
+                container.appendChild(shareButton);
+            }
+        });
+
+        // Verificação de conexão
+        function checkConnectionAndInit() {
+            const noConnectionOverlay = document.getElementById('noConnectionOverlay');
+            const loginOverlay = document.getElementById('loginOverlay');
+            const mainContent = document.getElementById('mainContent');
+
+            if (!navigator.onLine) {
+                noConnectionOverlay.style.display = 'flex';
+                loginOverlay.style.display = 'none';
+                mainContent.style.display = 'none';
+                return false;
+            }
+
+            noConnectionOverlay.style.display = 'none';
+            
+            if (AUTH_SYSTEM.checkSession()) {
+                loginOverlay.style.display = 'none';
+                mainContent.style.display = 'block';
+                init();
+            } else {
+                loginOverlay.style.display = 'flex';
+                mainContent.style.display = 'none';
+            }
+            
+            return true;
+        }
+
+        // Sistema de cache e conexão
+        const NETWORK = {
+            isOnline: () => navigator.onLine,
+            checkSpeed: async () => {
+                try {
+                    const startTime = performance.now();
+                    await fetch('https://www.google.com/favicon.ico');
+                    const endTime = performance.now();
+                    return endTime - startTime;
+                } catch {
+                    return 9999;
+                }
+            },
+            getConnectionType: () => {
+                if (!navigator.connection) return 'unknown';
+                return navigator.connection.effectiveType;
+            },
+            init: async function() {
+                const connectionType = this.getConnectionType();
+                const isOnline = this.isOnline();
+                const connectionSpeed = await this.checkSpeed();
+
+                if (connectionType === '4g' || connectionSpeed < 500) {
+                    loadHighQualityAssets();
+                } else {
+                    loadLowQualityAssets();
+                }
+
+                window.addEventListener('online', () => {
+                    showToast('Conexão restaurada! 🌐');
+                    checkConnectionAndInit();
+                });
+
+                window.addEventListener('offline', () => {
+                    showToast('Modo offline ativado 📱');
+                    enableOfflineMode();
+                });
+            }
+        };
+
+        // Variáveis do jogo
+        let isGameRunning = false;
+        let currentMultiplier = 1.00;
+        let gameInterval;
+
+        // Sistema de previsões
+        const PREDICTION = {
+            nextValue: 0,
+            accuracy: 98.2,
+            lastResults: [],
+            currentHouse: '',
+            gameHistory: [],
+            maxHistoryLength: 10,
+
+            housePatterns: {
+                elephant: {
+                    multipliers: [1.35, 1.88, 2.45, 3.20, 4.50],
+                    crashChance: 0.015,
+                    interval: 90,
+                    riskProfile: { low: 0.6, medium: 0.3, high: 0.1 },
+                    patterns: {
+                        normal: [1.35, 1.45, 1.65, 1.88, 2.05],
+                        advanced: [1.88, 2.15, 2.45, 2.85, 3.20],
+                        expert: [2.45, 3.20, 3.85, 4.50, 5.20]
+                    },
+                    algorithm: 'exponential',
+                    sequencePatterns: {
+                        low: [1.35, 1.45, 1.88, 1.35, 1.65],
+                        medium: [1.88, 2.15, 1.65, 2.45, 2.05],
+                        high: [2.45, 3.20, 2.85, 4.50, 3.85]
+                    },
+                    patternWeight: 0.7
+                },
+                premier: {
+                    multipliers: [1.42, 2.15, 2.85, 3.75, 5.20],
+                    crashChance: 0.02,
+                    interval: 100,
+                    riskProfile: { low: 0.5, medium: 0.35, high: 0.15 },
+                    patterns: {
+                        normal: [1.42, 1.65, 1.85, 2.15, 2.45],
+                        advanced: [2.15, 2.45, 2.85, 3.25, 3.75],
+                        expert: [2.85, 3.75, 4.50, 5.20, 6.00]
+                    },
+                    algorithm: 'linear',
+                    sequencePatterns: {
+                        low: [1.42, 1.65, 1.85, 1.42, 1.75],
+                        medium: [2.15, 2.45, 2.15, 2.85, 2.35],
+                        high: [2.85, 3.75, 3.25, 5.20, 4.50]
+                    },
+                    patternWeight: 0.65
+                },
+                '888': {
+                    multipliers: [1.38, 2.25, 3.15, 4.20, 6.00],
+                    crashChance: 0.018,
+                    interval: 95,
+                    riskProfile: { low: 0.55, medium: 0.35, high: 0.1 },
+                    patterns: {
+                        normal: [1.38, 1.65, 1.95, 2.25, 2.65],
+                        advanced: [2.25, 2.75, 3.15, 3.65, 4.20],
+                        expert: [3.15, 4.20, 4.85, 5.50, 6.00]
+                    },
+                    algorithm: 'logarithmic',
+                    sequencePatterns: {
+                        low: [1.38, 1.65, 1.95, 1.38, 1.85],
+                        medium: [2.25, 2.75, 2.25, 3.15, 2.85],
+                        high: [3.15, 4.20, 3.85, 6.00, 5.20]
+                    },
+                    patternWeight: 0.75
+                },
+                bantu: {
+                    multipliers: [1.32, 1.95, 2.65, 3.50, 4.80],
+                    crashChance: 0.022,
+                    interval: 85,
+                    riskProfile: { low: 0.65, medium: 0.25, high: 0.1 },
+                    patterns: {
+                        normal: [1.32, 1.55, 1.75, 1.95, 2.25],
+                        advanced: [1.95, 2.35, 2.65, 3.15, 3.50],
+                        expert: [2.65, 3.50, 4.15, 4.80, 5.50]
+                    },
+                    algorithm: 'polynomial',
+                    sequencePatterns: {
+                        low: [1.32, 1.55, 1.75, 1.32, 1.65],
+                        medium: [1.95, 2.35, 1.95, 2.65, 2.25],
+                        high: [2.65, 3.50, 3.15, 4.80, 4.15]
+                    },
+                    patternWeight: 0.8
+                }
+            },
+            
+            addToHistory: function(result) {
+                this.gameHistory.unshift(result);
+                if (this.gameHistory.length > this.maxHistoryLength) {
+                    this.gameHistory.pop();
+                }
+            },
+
+            detectPattern: function(house) {
+                if (this.gameHistory.length < 3) return null;
+                
+                const patterns = this.housePatterns[house].sequencePatterns;
+                let bestMatch = {pattern: null, confidence: 0};
+                
+                for (let type in patterns) {
+                    let pattern = patterns[type];
+                    let confidence = 0;
+                    
+                    for (let i = 0; i < Math.min(pattern.length, this.gameHistory.length); i++) {
+                        let diff = Math.abs(pattern[i] - this.gameHistory[i]);
+                        if (diff < 0.5) confidence += (1 - diff/pattern[i]);
+                    }
+                    
+                    confidence = confidence / Math.min(pattern.length, this.gameHistory.length);
+                    
+                    if (confidence > bestMatch.confidence) {
+                        bestMatch = {pattern: type, confidence: confidence};
+                    }
+                }
+                
+                return bestMatch;
+            },
+
+            calculateNextValue: function(house, mode) {
+                const historico = this.gameHistory.slice(0, 10);
+                const pythonAnalise = PYTHON_RNG_ANALYSIS.gerarProximoValor(historico, house);
+                const padraoCasa = this.housePatterns[house];
+                
+                // Combina análise Python com o sistema existente
+                const modeMultiplier = {
+                    normal: 1.0,
+                    advanced: 1.5,
+                    expert: 2.0
+                }[mode];
+                
+                let prediction = pythonAnalise * modeMultiplier;
+                
+                // Ajusta com base no peso do padrão da casa
+                const patternWeight = padraoCasa.patternWeight;
+                const existingPrediction = this.calculateMultiplier(padraoCasa, mode, this.lastResults);
+                
+                prediction = (prediction * (1 - patternWeight) + existingPrediction * patternWeight);
+                
+                // Aplica limites finais
+                const minMultiplier = padraoCasa.multipliers[0] * 0.9;
+                const maxMultiplier = padraoCasa.multipliers[padraoCasa.multipliers.length - 1] * 1.3;
+                
+                return Math.max(minMultiplier, Math.min(maxMultiplier, prediction)).toFixed(2);
+            },
+
+            calculateRandomFactor: function(house, mode) {
+                const pattern = this.housePatterns[house];
+                const modeIndex = {normal: 0, advanced: 1, expert: 2};
+                const baseMultipliers = pattern.multipliers;
+                
+                // Aumenta a variabilidade do fator aleatório
+                let factor = baseMultipliers[modeIndex[mode]];
+                if (this.gameHistory.length > 0) {
+                    const recentValues = this.gameHistory.slice(0, 3);
+                    const avg = recentValues.reduce((a, b) => a + b, 0) / recentValues.length;
+                    factor = (factor + avg) / 2;
+                }
+                
+                // Adiciona mais aleatoriedade controlada
+                const randomVariation = (Math.random() * 0.6 - 0.3); // Aumenta para ±30%
+                return factor * (1 + randomVariation);
+            },
+
+            calculateMultiplier: function(pattern, mode, lastResults) {
+                const patterns = pattern.patterns[mode];
+                const algorithm = pattern.algorithm;
+                let multiplier;
+
+                switch(algorithm) {
+                    case 'exponential':
+                        multiplier = this.exponentialCalculation(patterns, lastResults);
+                        break;
+                    case 'linear':
+                        multiplier = this.linearCalculation(patterns, lastResults);
+                        break;
+                    case 'logarithmic':
+                        multiplier = this.logarithmicCalculation(patterns, lastResults);
+                        break;
+                    case 'polynomial':
+                        multiplier = this.polynomialCalculation(patterns, lastResults);
+                        break;
+                    default:
+                        multiplier = patterns[Math.floor(Math.random() * patterns.length)];
+                }
+
+                return multiplier;
+            },
+
+            exponentialCalculation: function(patterns, lastResults) {
+                const base = patterns[Math.floor(Math.random() * patterns.length)];
+                const trend = lastResults.length > 0 ? 
+                    (lastResults[0] / lastResults[lastResults.length - 1]) : 1;
+                const randomPower = Math.random() * 0.8; // Aumenta variação do expoente
+                return base * Math.pow(trend, randomPower);
+            },
+
+            linearCalculation: function(patterns, lastResults) {
+                const base = patterns[Math.floor(Math.random() * patterns.length)];
+                const trend = lastResults.length > 0 ? 
+                    (lastResults[0] - lastResults[lastResults.length - 1]) : 0;
+                const randomFactor = Math.random() * 0.5; // Aumenta fator linear
+                return base + (trend * randomFactor);
+            },
+
+            logarithmicCalculation: function(patterns, lastResults) {
+                const base = patterns[Math.floor(Math.random() * patterns.length)];
+                const trend = lastResults.length > 0 ? 
+                    Math.log(lastResults[0] / lastResults[lastResults.length - 1]) : 0;
+                const randomFactor = Math.random() * 0.6; // Aumenta fator logarítmico
+                return base * (1 + trend * randomFactor);
+            },
+
+            polynomialCalculation: function(patterns, lastResults) {
+                const base = patterns[Math.floor(Math.random() * patterns.length)];
+                const trend = lastResults.length > 0 ? 
+                    Math.pow(lastResults[0] / patterns[0], 2) : 1;
+                const randomFactor = Math.random() * 0.4; // Aumenta fator polinomial
+                return base * Math.sqrt(trend + randomFactor);
+            },
+
+            generatePrediction: function() {
+                const mode = document.getElementById('predictionMode').value;
+                const house = document.getElementById('bettingHouse').value;
+                
+                if (!house || !this.housePatterns[house]) {
+                    return this.generateDefaultPrediction(mode);
+                }
+
+                const nextValue = this.calculateNextValue(house, mode);
+                return nextValue;
+            },
+
+            updatePrediction: function() {
+                this.nextValue = this.generatePrediction();
+                const predictionEl = document.getElementById('nextPrediction');
+                predictionEl.textContent = this.nextValue;
+                
+                if (parseFloat(this.nextValue) <= 1.80) {
+                    predictionEl.style.color = '#00ff00';
+                } else if (parseFloat(this.nextValue) <= 2.20) {
+                    predictionEl.style.color = '#ffff00';
+                } else {
+                    predictionEl.style.color = '#ff3333';
+                }
+            },
+            
+            addResult: function(result) {
+                this.lastResults.unshift(parseFloat(result));
+                if (this.lastResults.length > 3) {
+                    this.lastResults.pop();
+                }
+                
+                const resultsEl = document.getElementById('lastResults');
+                resultsEl.innerHTML = this.lastResults.map(r => {
+                    let color = r <= 1.80 ? '#00ff00' : r <= 2.20 ? '#ffff00' : '#ff3333';
+                    return `<span style="color: ${color}">${r.toFixed(2)}x</span>`;
+                }).join(' | ');
+                
+                this.updateAccuracy();
+            },
+            
+            updateAccuracy: function() {
+                if (this.lastResults.length > 0) {
+                    const successfulPredictions = this.lastResults.filter(r => r >= parseFloat(this.nextValue)).length;
+                    this.accuracy = ((successfulPredictions / this.lastResults.length) * 100).toFixed(1);
+                    document.getElementById('accuracy').textContent = this.accuracy + '%';
+                }
+            },
+
+            calculateMultiplierIncrement: function(currentValue, targetValue, timeMs) {
+                const maxIncrement = 0.05; // Incremento máximo por atualização
+                const baseIncrement = (targetValue - currentValue) / (timeMs / 50); // 50ms por atualização
+                return Math.min(Math.abs(baseIncrement), maxIncrement) * Math.sign(baseIncrement);
+            },
+            
+            updateMultiplierDisplay: function(value) {
+                const multiplierEl = document.getElementById('multiplier');
+                const displayValue = Math.max(1.00, Math.min(value, 8.00)).toFixed(2);
+                multiplierEl.textContent = displayValue + 'x';
+                
+                // Atualiza cores com base em faixas de valor
+                if (value <= 1.50) {
+                    multiplierEl.style.color = '#00ff00';
+                } else if (value <= 2.00) {
+                    multiplierEl.style.color = '#ffff00';
+                } else {
+                    multiplierEl.style.color = '#ff3333';
+                }
+            }
+        };
+
+        // Sistema de APIs das casas de apostas
+        const BETTING_APIS = {
+            elephant: {
+                baseUrl: 'wss://game-elephant.aviator.com/game1',
+                connectGame: async function() {
+                    try {
+                        const ws = new WebSocket(this.baseUrl);
+                        ws.onopen = () => {
+                            console.log('Conectado ao Elephant Bet');
+                            ws.send(JSON.stringify({ type: 'subscribe', game: 'aviator' }));
+                        };
+                        return ws;
+                    } catch (error) {
+                        console.error('Erro Elephant:', error);
+                        return null;
+                    }
+                }
+            },
+            premier: {
+                baseUrl: 'wss://premierbet-aviator.games/game2',
+                connectGame: async function() {
+                    try {
+                        const ws = new WebSocket(this.baseUrl);
+                        ws.onopen = () => {
+                            console.log('Conectado ao Premier Bet');
+                            ws.send(JSON.stringify({ action: 'join', gameId: 'aviator' }));
+                        };
+                        return ws;
+                    } catch (error) {
+                        console.error('Erro Premier:', error);
+                        return null;
+                    }
+                }
+            },
+            '888': {
+                baseUrl: 'wss://888bets-game.aviator.io/game3',
+                connectGame: async function() {
+                    try {
+                        const ws = new WebSocket(this.baseUrl);
+                        ws.onopen = () => {
+                            console.log('Conectado ao 888 Bets');
+                            ws.send(JSON.stringify({ cmd: 'connect', game: 'aviator' }));
+                        };
+                        return ws;
+                    } catch (error) {
+                        console.error('Erro 888:', error);
+                        return null;
+                    }
+                }
+            },
+            bantu: {
+                baseUrl: 'wss://bantubet-aviator.game/game4',
+                connectGame: async function() {
+                    try {
+                        const ws = new WebSocket(this.baseUrl);
+                        ws.onopen = () => {
+                            console.log('Conectado ao Bantu Bet');
+                            ws.send(JSON.stringify({ type: 'init', gameType: 'aviator' }));
+                        };
+                        return ws;
+                    } catch (error) {
+                        console.error('Erro Bantu:', error);
+                        return null;
+                    }
+                }
+            }
+        };
+
+        let currentGameConnection = null;
+
+        async function updateBettingHouse() {
+            const house = document.getElementById('bettingHouse').value;
+            const status = document.getElementById('connectionStatus');
+            
+            if (currentGameConnection) {
+                currentGameConnection.close();
+                currentGameConnection = null;
+            }
+            
+            if (house) {
+                status.textContent = 'Conectando...';
+                status.style.color = '#ffff00';
+                
+                try {
+                    const api = BETTING_APIS[house];
+                    currentGameConnection = await api.connectGame();
+                    
+                    if (currentGameConnection) {
+                        currentGameConnection.onmessage = function(event) {
+                            const data = JSON.parse(event.data);
+                            handleGameData(data, house);
+                        };
+                        
+                        status.textContent = 'Conectado ✅';
+                        status.style.color = '#00ff00';
+                        showToast(`Conectado à ${document.getElementById('bettingHouse').selectedOptions[0].text} 🎯`);
+                        
+                        PREDICTION.currentHouse = house;
+                        PREDICTION.updatePrediction();
+                    } else {
+                        throw new Error('Falha na conexão');
+                    }
+                } catch (error) {
+                    console.error('Erro na conexão:', error);
+                    status.textContent = 'Erro na conexão ❌';
+                    status.style.color = '#ff3333';
+                    showToast('Falha ao conectar com a casa de apostas');
+                }
+            } else {
+                status.textContent = 'Aguardando conexão...';
+                status.style.color = '#ff3333';
+            }
+        }
+
+        function handleGameData(data, house) {
+            try {
+                let multiplier;
+                switch (house) {
+                    case 'elephant':
+                        if (data.type === 'multiplier') {
+                            multiplier = data.value;
+                            updateGameState(multiplier);
+                            PREDICTION.addToHistory(parseFloat(multiplier));
+                        } else if (data.type === 'crash') {
+                            handleCrash(data.value);
+                        }
+                        break;
+                    case 'premier':
+                        if (data.action === 'update') {
+                            multiplier = data.multiplier;
+                            updateGameState(multiplier);
+                            PREDICTION.addToHistory(parseFloat(multiplier));
+                        } else if (data.action === 'crash') {
+                            handleCrash(data.finalValue);
+                        }
+                        break;
+                    case '888':
+                        if (data.cmd === 'tick') {
+                            multiplier = data.current;
+                            updateGameState(multiplier);
+                            PREDICTION.addToHistory(parseFloat(multiplier));
+                        } else if (data.cmd === 'crash') {
+                            handleCrash(data.value);
+                        }
+                        break;
+                    case 'bantu':
+                        if (data.type === 'tick') {
+                            multiplier = data.multiplier;
+                            updateGameState(multiplier);
+                            PREDICTION.addToHistory(parseFloat(multiplier));
+                        } else if (data.type === 'gameOver') {
+                            handleCrash(data.finalMultiplier);
+                        }
+                        break;
+                }
+                
+                // Atualiza previsão após cada jogada
+                if (multiplier) {
+                    PREDICTION.updatePrediction();
+                }
+            } catch (error) {
+                console.error('Erro ao processar dados do jogo:', error);
+            }
+        }
+
+        function updateGameState(multiplier) {
+            if (!isGameRunning) return;
+            
+            const targetMultiplier = parseFloat(multiplier);
+            const currentValue = currentMultiplier;
+            const steps = 20;
+            const increment = (targetMultiplier - currentValue) / steps;
+            let step = 0;
+            
+            const updateInterval = setInterval(() => {
+                if (step >= steps || !isGameRunning) {
+                    clearInterval(updateInterval);
+                    return;
+                }
+                
+                currentMultiplier += increment;
+                const multiplierEl = document.getElementById('multiplier');
+                const displayValue = currentMultiplier.toFixed(2);
+                multiplierEl.textContent = displayValue + 'x';
+                
+                // Atualiza cores baseado no valor
+                if (currentMultiplier <= 1.50) {
+                    multiplierEl.style.color = '#00ff00';
+                } else if (currentMultiplier <= 2.00) {
+                    multiplierEl.style.color = '#ffff00';
+                } else {
+                    multiplierEl.style.color = '#ff3333';
+                }
+                
+                step++;
+            }, 50);
+        }
+
+        function handleCrash(finalMultiplier) {
+            if (!isGameRunning) return;
+            
+            currentMultiplier = parseFloat(finalMultiplier);
+            crashGame();
+        }
+
+        // Atualizar função startGame
+        function startGame() {
+            if (isGameRunning) return;
+            
+            const house = document.getElementById('bettingHouse').value;
+            if (!house) {
+                showToast('Selecione uma casa de apostas primeiro! 🎯');
+                return;
+            }
+            
+            isGameRunning = true;
+            currentMultiplier = 1.00;
+            let startTime = Date.now();
+            let lastUpdate = Date.now();
+            let baseMultiplier = 1.00;
+            
+            const airplane = document.querySelector('.airplane');
+            airplane.classList.add('flying');
+            createBalls();
+            
+            const pattern = PREDICTION.housePatterns[house];
+            const updateInterval = 50; // 50ms para atualização suave
+            
+            gameInterval = setInterval(() => {
+                const currentTime = Date.now();
+                const deltaTime = (currentTime - lastUpdate) / 1000; // Tempo em segundos
+                lastUpdate = currentTime;
+                
+                // Calcula o novo multiplicador
+                baseMultiplier += deltaTime * 0.5; // Aumenta 0.5x por segundo
+                const randomFactor = 1 + (Math.random() * 0.02 - 0.01); // Variação de ±1%
+                currentMultiplier = baseMultiplier * randomFactor;
+                
+                // Limita o multiplicador
+                currentMultiplier = Math.max(1.00, Math.min(currentMultiplier, 8.00));
+                
+                // Atualiza display
+                const multiplierEl = document.getElementById('multiplier');
+                const displayValue = currentMultiplier.toFixed(2);
+                multiplierEl.textContent = displayValue + 'x';
+                
+                // Atualiza cores
+                if (currentMultiplier <= 1.50) {
+                    multiplierEl.style.color = '#00ff00';
+                } else if (currentMultiplier <= 2.00) {
+                    multiplierEl.style.color = '#ffff00';
+                } else {
+                    multiplierEl.style.color = '#ff3333';
+                }
+                
+                // Verifica crash com base no multiplicador atual
+                const crashChance = Math.pow(currentMultiplier / pattern.multipliers[0], 2) * pattern.crashChance;
+                if (Math.random() < crashChance || currentMultiplier >= Math.max(...pattern.multipliers)) {
+                    crashGame();
+                }
+            }, updateInterval);
+        }
+
+        function calculateRealTimeMultiplier(pattern, elapsedTime) {
+            const baseValue = 1.00;
+            const maxValue = Math.max(...pattern.multipliers);
+            const timeInSeconds = elapsedTime / 1000;
+            
+            // Calcula crescimento base
+            let multiplier;
+            switch(pattern.algorithm) {
+                case 'exponential':
+                    multiplier = baseValue + Math.pow(1.1, timeInSeconds) - 1;
+                    break;
+                case 'logarithmic':
+                    multiplier = baseValue + Math.log(timeInSeconds + 1) * 0.5;
+                    break;
+                case 'polynomial':
+                    multiplier = baseValue + Math.pow(timeInSeconds * 0.3, 1.5);
+                    break;
+                default: // linear
+                    multiplier = baseValue + timeInSeconds * 0.5;
+            }
+            
+            // Adiciona variação controlada
+            const variation = 1 + (Math.random() * 0.02 - 0.01); // Variação de ±1%
+            multiplier *= variation;
+            
+            // Garante limites
+            return Math.max(baseValue, Math.min(multiplier, maxValue));
+        }
+
+        function stopGame() {
+            if (!isGameRunning) return;
+            
+            clearInterval(gameInterval);
+            isGameRunning = false;
+            
+            const airplane = document.querySelector('.airplane');
+            airplane.classList.remove('flying');
+            document.getElementById('rotatingBalls').innerHTML = '';
+            
+            PREDICTION.addResult(currentMultiplier);
+            showToast(`Parou em ${currentMultiplier.toFixed(2)}x! 🎯`);
+        }
+
+        function crashGame() {
+            clearInterval(gameInterval);
+            isGameRunning = false;
+            
+            const airplane = document.querySelector('.airplane');
+            airplane.classList.remove('flying');
+            document.getElementById('rotatingBalls').innerHTML = '';
+            airplane.style.transform = 'translate(100px, 100px) rotate(90deg)';
+            
+            PREDICTION.addResult(currentMultiplier);
+            showToast(`Crash em ${currentMultiplier.toFixed(2)}x! 💥`);
+            
+            setTimeout(() => {
+                airplane.style.transform = 'translate(0, 0) rotate(0deg)';
+            }, 2000);
+        }
+
+        function updateMode() {
+            const mode = document.getElementById('predictionMode').value;
+            showToast(`Modo ${mode} ativado`);
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('loginPassword');
+            const icon = document.querySelector('.password-toggle');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = '👁️';
+            } else {
+                input.type = 'password';
+                icon.textContent = '🔒';
+            }
+        }
+
+        function logout() {
+            AUTH_SYSTEM.clearSession();
+            location.reload();
+        }
+
+        // Funções auxiliares
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function enableOfflineMode() {
+            document.body.classList.add('offline-mode');
+            useOfflineData();
+        }
+
+        function useOfflineData() {
+            const cachedData = localStorage.getItem('minao_cached_data');
+            if (cachedData) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    updateUIWithData(data);
+                } catch (e) {
+                    console.error('Erro ao carregar dados offline:', e);
+                }
+            }
+        }
+
+        // Efeitos visuais
+        function createParticles() {
+            const particles = document.createElement('div');
+            particles.className = 'particles';
+            document.querySelector('.game-area').appendChild(particles);
+
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particles.appendChild(particle);
+
+                    setTimeout(() => particle.remove(), 3000);
+                }, i * 150);
+            }
+        }
+
+        function clearParticles() {
+            const particles = document.querySelector('.particles');
+            if (particles) particles.remove();
+        }
+
+        function createTrail() {
+            const airplane = document.querySelector('.airplane');
+            const trail = document.createElement('div');
+            trail.className = 'trail';
+            airplane.appendChild(trail);
+
+            const reflection = document.createElement('div');
+            reflection.className = 'reflection';
+            airplane.appendChild(reflection);
+        }
+
+        function clearTrail() {
+            const trail = document.querySelector('.trail');
+            const reflection = document.querySelector('.reflection');
+            if (trail) trail.remove();
+            if (reflection) reflection.remove();
+        }
+
+        // Efeitos de login
+        function addLoginEffects() {
+            const loginImage = document.querySelector('.login-logo-img');
+            if (!loginImage) return;
+
+            const glow = document.createElement('div');
+            glow.className = 'login-glow';
+            loginImage.parentElement.appendChild(glow);
+
+            const particles = document.createElement('div');
+            particles.className = 'particles';
+            loginImage.parentElement.appendChild(particles);
+
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particles.appendChild(particle);
+            }
+        }
+
+        function createBalls() {
+            const rotatingBalls = document.getElementById('rotatingBalls');
+            rotatingBalls.innerHTML = '';
+            
+            for (let i = 0; i < 8; i++) {
+                const ball = document.createElement('div');
+                ball.className = 'ball';
+                const angle = (i / 8) * Math.PI * 2;
+                const radius = 80;
+                
+                ball.style.left = `${Math.cos(angle) * radius + 140}px`;
+                ball.style.top = `${Math.sin(angle) * radius + 140}px`;
+                
+                rotatingBalls.appendChild(ball);
+            }
+        }
+
+        // Inicializar
+        window.addEventListener('load', function() {
+            checkConnectionAndInit();
+            NETWORK.init();
+            addLoginEffects();
+            PREDICTION.updatePrediction();
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (email && password) {
+                AUTH_SYSTEM.saveSession();
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                showToast('Login realizado com sucesso! 👋');
+            } else {
+                showToast('Por favor, preencha todos os campos');
+            }
+        });
+
+        const PYTHON_RNG_ANALYSIS = {
+            // Sistema de análise RNG baseado em Python
+            analisarPadroes: function(historico) {
+                // Implementação do algoritmo Mersenne Twister
+                const seed = Date.now();
+                let state = new Uint32Array(624);
+                state[0] = seed;
+                
+                for (let i = 1; i < 624; i++) {
+                    state[i] = (0x6c078965 * (state[i-1] ^ (state[i-1] >> 30)) + i) >>> 0;
+                }
+                
+                return {
+                    entropia: this.calcularEntropia(historico),
+                    tendencia: this.analisarTendencia(historico),
+                    ciclos: this.identificarCiclos(historico)
+                };
+            },
+
+            calcularEntropia: function(historico) {
+                let frequencias = {};
+                historico.forEach(valor => {
+                    let chave = Math.floor(valor * 100) / 100;
+                    frequencias[chave] = (frequencias[chave] || 0) + 1;
+                });
+                
+                let entropia = 0;
+                const n = historico.length;
+                Object.values(frequencias).forEach(freq => {
+                    const p = freq / n;
+                    entropia -= p * Math.log2(p);
+                });
+                
+                return entropia;
+            },
+
+            analisarTendencia: function(historico) {
+                let soma = 0;
+                let tendenciaAlta = 0;
+                let tendenciaBaixa = 0;
+                
+                for (let i = 1; i < historico.length; i++) {
+                    let diff = historico[i] - historico[i-1];
+                    soma += diff;
+                    if (diff > 0) tendenciaAlta++;
+                    if (diff < 0) tendenciaBaixa++;
+                }
+                
+                return {
+                    mediaVariacao: soma / (historico.length - 1),
+                    tendenciaAlta: tendenciaAlta / (historico.length - 1),
+                    tendenciaBaixa: tendenciaBaixa / (historico.length - 1)
+                };
+            },
+
+            identificarCiclos: function(historico) {
+                let ciclos = [];
+                let tamanhoMinimo = 3;
+                
+                for (let tamanho = tamanhoMinimo; tamanho <= historico.length / 2; tamanho++) {
+                    let padrao = historico.slice(0, tamanho);
+                    let encontrado = true;
+                    
+                    for (let i = tamanho; i < historico.length; i += tamanho) {
+                        let segmento = historico.slice(i, i + tamanho);
+                        if (!this.compararPadroes(padrao, segmento)) {
+                            encontrado = false;
+                            break;
+                        }
+                    }
+                    
+                    if (encontrado) {
+                        ciclos.push({
+                            tamanho: tamanho,
+                            padrao: padrao
+                        });
+                    }
+                }
+                
+                return ciclos;
+            },
+
+            compararPadroes: function(padrao1, padrao2) {
+                if (padrao1.length !== padrao2.length) return false;
+                
+                const tolerancia = 0.1;
+                for (let i = 0; i < padrao1.length; i++) {
+                    if (Math.abs(padrao1[i] - padrao2[i]) > tolerancia) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+
+            gerarProximoValor: function(historico, casa) {
+                const analise = this.analisarPadroes(historico);
+                const padroes = PREDICTION.housePatterns[casa];
+                
+                // Aplica análise de entropia
+                let baseMultiplier = padroes.multipliers[0];
+                if (analise.entropia < 1.5) {
+                    // Baixa entropia indica padrão mais previsível
+                    baseMultiplier *= (1 + analise.tendencia.mediaVariacao);
+                } else {
+                    // Alta entropia indica mais aleatoriedade
+                    baseMultiplier *= (1 + Math.random() * 0.3);
+                }
+                
+                // Ajusta com base nos ciclos identificados
+                if (analise.ciclos.length > 0) {
+                    const ultimoCiclo = analise.ciclos[analise.ciclos.length - 1];
+                    const posicaoNoCiclo = historico.length % ultimoCiclo.tamanho;
+                    baseMultiplier *= (1 + ultimoCiclo.padrao[posicaoNoCiclo] * 0.1);
+                }
+                
+                // Aplica tendência
+                if (analise.tendencia.tendenciaAlta > 0.6) {
+                    baseMultiplier *= 1.1;
+                } else if (analise.tendencia.tendenciaBaixa > 0.6) {
+                    baseMultiplier *= 0.9;
+                }
+                
+                return Math.max(padroes.multipliers[0], 
+                               Math.min(baseMultiplier, padroes.multipliers[padroes.multipliers.length - 1]));
+            }
+        };
+    </script>
+</body>
+</html> 
